@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Verbind: o mapa da internet. Todas as informações, organizadas geograficamente, sem palavra-chave.">
+<title>Verbind — O mapa da internet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Instrument+Sans:wght@400;600&family=DM+Mono:wght@400;500&display=swap">
+<style>
+:root{--bg:#fff;--fg:#000;--mut:#4d4d4d;--line:#d6d6d6;--soft:#f2f2f2;--btnbg:#000;--btnfg:#fff;color-scheme:light}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:90px}
+html.locked,html.locked body{overflow:hidden;height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 17px/1.65 "Instrument Sans",Arial,sans-serif;-webkit-font-smoothing:antialiased;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+h1,h2,h3,h4{font-family:"Bricolage Grotesque",Arial,sans-serif;margin:0;letter-spacing:-.04em;line-height:1}
+p{margin:0}
+a{color:inherit}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--fg);outline-offset:3px}
+.dk :focus-visible{outline-color:#fff}
+.mono{font:500 11px/1.5 "DM Mono",monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--mut)}
+.w{max-width:1280px;margin:0 auto;padding-left:max(24px,5vw);padding-right:max(24px,5vw)}
+.sec{padding-top:120px;padding-bottom:120px}
+.dk{background:#000;color:#fff;--bg:#000;--fg:#fff;--mut:#b3b3b3;--line:#333;--soft:#111;--btnbg:#fff;--btnfg:#000}
+.sk{position:absolute;left:12px;top:-60px;background:#000;color:#fff;padding:10px 16px;z-index:100;border-radius:9px;text-decoration:none}
+.sk:focus{top:calc(env(safe-area-inset-top,0px) + 10px)}
+.btn{display:inline-flex;align-items:center;gap:14px;border:0;cursor:pointer;font:700 16px "Bricolage Grotesque",sans-serif;letter-spacing:-.01em;padding:16px 24px 16px 18px;border-radius:9px;background:var(--btnbg);color:var(--btnfg);text-decoration:none;line-height:1.1}
+.btn i{width:11px;height:19px;border-radius:3px;background:currentColor;display:block}
+.btn:hover i,.btn:focus-visible i{animation:gest .9s cubic-bezier(.5,0,.3,1)}
+.btn.sm{padding:11px 16px 11px 14px;font-size:14px}
+.btn.sm i{width:8px;height:14px}
+@keyframes gest{0%{transform:rotate(0)}45%{transform:rotate(-30deg)}55%{transform:rotate(-35deg)}62%{transform:rotate(-30deg)}100%{transform:rotate(0)}}
+.lnk{font:700 16px "Bricolage Grotesque",sans-serif;text-decoration:none;padding:16px 4px;position:relative;display:inline-block}
+.lnk::after{content:"";position:absolute;left:0;right:0;bottom:10px;height:2px;background:currentColor;transition:clip-path .4s;clip-path:inset(0 52% 0 0)}
+.lnk:hover::after{clip-path:inset(0 0 0 0)}
+#pr{position:fixed;left:0;right:0;top:0;height:3px;background:#000;transform-origin:0 50%;transform:scaleX(0);z-index:60}
+#gate{position:fixed;inset:0;z-index:50;color:#fff;touch-action:none}
+#gate[hidden]{display:none}
+.door{position:absolute;top:0;bottom:0;width:50%;background-color:#000;background-image:linear-gradient(#ffffff0d 1px,transparent 1px);background-size:100% 64px;transition:transform 1.25s cubic-bezier(.7,0,.2,1)}
+.dl{left:0}
+.dr{right:0}
+#gate.o .dl{transform:translateX(-101%)}
+#gate.o .dr{transform:translateX(101%)}
+#seam{position:absolute;left:50%;top:0;bottom:0;width:2px;margin-left:-1px;background:#fff;opacity:0;box-shadow:0 0 60px 14px #ffffff77;transition:opacity .8s}
+#gate.o #seam{opacity:0!important}
+#sym{position:absolute;left:50%;top:46%;width:min(70vw,420px);transform:translate(-50%,-50%);overflow:visible;transition:opacity .5s,transform 1s}
+#gate.o #sym{opacity:0;transform:translate(-50%,-50%) scale(1.15)}
+#key{cursor:grab;touch-action:none;outline:none}
+#key:focus-visible rect.k{stroke:#888;stroke-width:3}
+.gt{position:absolute;left:0;right:0;padding:0 max(24px,5vw);transition:opacity .5s}
+#gate.o .gt{opacity:0}
+.gtop{top:calc(env(safe-area-inset-top,0px) + 22px);display:flex;justify-content:space-between}
+.gtop .mono,.ghint .mono{color:#bdbdbd}
+.gbot{bottom:calc(env(safe-area-inset-bottom,0px) + 28px);display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+.gbot h2{font-size:clamp(28px,4.6vw,60px);font-weight:800;max-width:720px;line-height:1}
+.gbot h2 em{font-style:normal;color:#8f8f8f}
+.ghint{display:flex;flex-direction:column;gap:12px;align-items:flex-end;text-align:right}
+.ghint button{background:none;border:0;color:#bdbdbd;font:500 12px "DM Mono",monospace;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;text-decoration:underline;text-underline-offset:4px;padding:6px}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:40;background:#ffffffe6;backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.hi{height:72px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{display:flex;align-items:center;gap:10px;font:800 24px "Bricolage Grotesque",sans-serif;letter-spacing:-.045em;text-decoration:none}
+.mk{display:block;color:currentColor}
+.brand .mk{width:34px;height:35px}
+nav{display:flex;gap:26px;align-items:center}
+nav a:not(.btn){font-size:14px;text-decoration:none;color:var(--mut)}
+nav a:not(.btn):hover{color:#000}
+#mb{display:none;background:none;border:1px solid #000;border-radius:9px;padding:9px 14px;font:700 14px "Bricolage Grotesque",sans-serif;cursor:pointer}
+.hero{padding-top:64px;padding-bottom:88px;display:grid;grid-template-columns:1.05fr .95fr;gap:5vw;align-items:center}
+.hero h1{font-size:clamp(46px,6.6vw,104px);font-weight:800;line-height:.94;margin:20px 0 28px}
+.hero h1 span{text-decoration:underline;text-decoration-thickness:.05em;text-underline-offset:.1em}
+#h1:focus{outline:0}
+.lead{font-size:19px;max-width:560px;color:var(--mut);margin-bottom:36px}
+.cta{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.rv{opacity:0;transform:translateY(22px);transition:opacity .9s,transform .9s cubic-bezier(.2,.7,.2,1)}
+.open .hero .rv,.rv.in{opacity:1;transform:none}
+.open .hero .rv:nth-child(2){transition-delay:.15s}
+.open .hero .rv:nth-child(3){transition-delay:.3s}
+.open .hero .rv:nth-child(4){transition-delay:.45s}
+.stage{position:relative;aspect-ratio:1/1.05;background:var(--soft);border:1px solid var(--line);border-radius:4px;overflow:hidden;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:44px 44px}
+.ly{position:absolute;inset:0;transition:transform .25s ease-out}
+.orb{position:absolute;left:50%;top:50%;border:1px solid var(--mut);opacity:.5;border-radius:50%;transform:translate(-50%,-50%)}
+.nd{position:absolute;width:11px;height:11px;border-radius:50%;background:#000;border:2px solid var(--soft)}
+.nd.o{background:transparent;border-color:#000}
+.nd.g{background:#888}
+.chip{position:absolute;background:#fff;border:1px solid var(--line);padding:8px 12px;font-size:12px;white-space:nowrap}
+.core{position:absolute;left:50%;top:50%;width:26%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:26%;background:#000;display:grid;place-items:center;color:#fff;box-shadow:0 20px 50px #00000033}
+.core .mk{width:70%;height:auto}
+.stl{position:absolute;font:500 10px "DM Mono",monospace;letter-spacing:.12em;color:var(--mut)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid #000;border-bottom:1px solid var(--line)}
+.stats div{padding:26px 24px 26px 0}
+.stats div+div{padding-left:24px;border-left:1px solid var(--line)}
+.stats b{display:block;font:800 clamp(40px,5vw,72px)/1 "Bricolage Grotesque",sans-serif;letter-spacing:-.05em}
+.tk{overflow:hidden;border-bottom:1px solid var(--line);padding:18px 0;white-space:nowrap}
+.tkt{display:inline-flex;gap:38px;animation:tk 90s linear infinite;padding-right:38px}
+.tkt span{font:700 22px "Bricolage Grotesque",sans-serif;letter-spacing:-.02em;color:var(--mut)}
+.tkt span:nth-child(3n){color:#000}
+@keyframes tk{to{transform:translateX(-50%)}}
+.hd{display:grid;grid-template-columns:1.1fr .9fr;gap:5vw;align-items:end;margin-bottom:56px}
+.hd h2{font-size:clamp(34px,4.6vw,68px);font-weight:800;margin-top:16px;line-height:1}
+.hd p{color:var(--mut)}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.por{border:1px solid var(--line);padding:30px;display:flex;flex-direction:column;gap:18px;min-height:360px}
+.por svg.dots{width:100%;max-width:230px;height:auto;color:#fff}
+.por h3{font-size:26px;font-weight:700;margin-top:auto}
+.por p{color:var(--mut);font-size:15px}
+.esc{margin-top:72px;border-top:1px solid var(--line);padding-top:36px}
+.esc h3{font-size:clamp(26px,3vw,40px);font-weight:800;margin:12px 0 30px}
+.row{display:grid;grid-template-columns:200px 1fr;gap:24px;align-items:center;padding:14px 0;border-bottom:1px solid var(--line)}
+.row b{font:700 18px "Bricolage Grotesque",sans-serif;letter-spacing:-.02em}
+.row small{display:block;font:400 13px/1.4 "Instrument Sans",sans-serif;color:var(--mut);margin-top:2px}
+.bar2{display:flex;height:34px;border:1px solid #fff;border-radius:6px;overflow:hidden}
+.bar2 i{display:flex;align-items:center;padding-left:12px;font:500 11px "DM Mono",monospace;letter-spacing:.1em;text-transform:uppercase;width:0;transition:width 1.4s cubic-bezier(.2,.7,.2,1);white-space:nowrap;overflow:hidden}
+.bar2 i.a{background:#fff;color:#000}
+.bar2 i.b{background:transparent;color:#fff}
+.in .bar2 i{width:var(--w)}
+.rules{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:40px}
+.rule{border-top:2px solid #000;padding-top:16px}
+.rule h3{font-size:22px;margin:10px 0 8px;line-height:1.05}
+.rule p{color:var(--mut);font-size:15px}
+.tools{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.fm{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.fm button,.nav4 button,.zm button{background:#fff;border:1px solid #000;border-radius:9px;padding:9px 13px;cursor:pointer;font:600 14px "Instrument Sans",sans-serif;transition:background .2s,color .2s}
+.fm button[aria-pressed="true"]{background:#000;color:#fff}
+.nav4 button:hover,.zm button:hover,.fm button:hover{background:#000;color:#fff}
+.nav4{display:flex;gap:8px;flex-wrap:wrap}
+.mapwrap{display:grid;grid-template-columns:1fr 340px;gap:16px;align-items:stretch}
+.map{position:relative;background:var(--soft);border:1px solid var(--line);border-radius:4px;overflow:hidden;min-width:0;touch-action:pan-y}
+.map.zm{touch-action:none;cursor:grab}
+.map.pn{cursor:grabbing}
+.map svg{display:block;width:100%;height:auto;user-select:none}
+.map text{font-family:"Instrument Sans",sans-serif}
+.zmb{position:absolute;right:12px;bottom:12px;display:flex;flex-direction:column;gap:6px}
+.zmb button{width:40px;height:40px;background:#fff;border:1px solid #000;border-radius:9px;font:700 20px "Bricolage Grotesque",sans-serif;cursor:pointer;line-height:1}
+.zmb button:hover{background:#000;color:#fff}
+.n{cursor:pointer;transition:opacity .3s;outline:none}
+.n circle{fill:#000;transition:fill .3s}
+.n text{font-size:13px;fill:#000}
+.map.has .n{opacity:.25}
+.map.has .n.sel,.map.has .n.nb{opacity:1}
+.n.sel circle{fill:#fff;stroke:#000;stroke-width:4}
+.n.nb circle{fill:#999;stroke:#000;stroke-width:1.5}
+.n:focus-visible circle{stroke:#000;stroke-width:5}
+.map .n.off{opacity:.08}
+.e{stroke:#555;stroke-width:1;opacity:.28;transition:all .3s}
+.map.has .e{opacity:.06}
+.map.has .e.on{opacity:1;stroke:#000;stroke-width:2}
+.rg{fill:none;stroke:#555;stroke-dasharray:3 7;opacity:.5}
+.cl{font:500 11px "DM Mono",monospace;letter-spacing:.14em;fill:#4d4d4d;text-transform:uppercase}
+.panel{background:#000;color:#fff;padding:30px;display:flex;flex-direction:column;gap:14px;border-radius:4px}
+.panel .mono{color:#bdbdbd}
+.panel h3{font-size:42px;font-weight:800;line-height:1}
+.panel p{color:#bdbdbd;font-size:15px}
+.bar{height:6px;background:#333;border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;background:#fff;transition:width .5s}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{background:transparent;color:#fff;border:1px solid #555;border-radius:9px;padding:9px 13px;cursor:pointer;font:600 14px "Instrument Sans",sans-serif;transition:background .2s}
+.chips button:hover{background:#fff;color:#000}
+.note{margin-top:14px}
+.kwb{background:var(--soft)}
+.kw{font-size:clamp(54px,13.4vw,220px);font-weight:800;line-height:.9;letter-spacing:-.055em;display:flex;justify-content:center;align-items:center;white-space:nowrap;margin:24px 0 0}
+.kw .a,.kw .b{display:inline-block;transition:transform .9s cubic-bezier(.2,.9,.3,1.4)}
+.kw .sm{width:.07em;align-self:stretch;margin:0 .08em;background:#000;border-radius:2px;opacity:0;transition:opacity .6s .3s}
+.kw.in .a{transform:translateX(-.05em)}
+.kw.in .b{transform:translateX(.05em)}
+.kw.in .sm{opacity:1}
+.kw .a{text-decoration:line-through;text-decoration-thickness:.04em}
+.vs{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:72px}
+.card{background:#fff;border:1px solid var(--line);padding:30px;display:flex;flex-direction:column;gap:16px;min-height:380px}
+.card h3{font-size:28px;font-weight:800}
+.card p{color:var(--mut);font-size:15px}
+.sb{display:flex;align-items:center;gap:12px;border:1px solid #000;border-radius:999px;padding:14px 20px;font-size:16px;min-height:54px;background:#fff}
+.sb span.t:after{content:"";display:inline-block;width:2px;height:1.1em;background:#000;margin-left:2px;vertical-align:-.2em;animation:cr 1s steps(2) infinite}
+@keyframes cr{50%{opacity:0}}
+.res{border:1px dashed #000;padding:18px;font-size:15px;opacity:0;transition:opacity .6s}
+.res.in{opacity:1}
+.mini{width:100%;height:auto;border:1px solid var(--line);background:var(--soft)}
+.mini text{font:500 10px "DM Mono",monospace;letter-spacing:.1em;fill:#4d4d4d}
+.acc{border-top:2px solid #000}
+.acc details{border-bottom:1px solid var(--line)}
+.acc summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:90px 1fr 28px;gap:16px;align-items:center;padding:26px 0}
+.acc summary::-webkit-details-marker{display:none}
+.acc summary b{font:800 clamp(24px,3.2vw,44px)/1 "Bricolage Grotesque",sans-serif;letter-spacing:-.04em}
+.acc summary::after{content:"";width:12px;height:20px;border:2px solid currentColor;border-radius:4px;justify-self:end;transition:transform .6s cubic-bezier(.3,1.5,.5,1)}
+.acc details[open] summary::after{transform:rotate(-30deg);background:currentColor}
+.acc details>div{padding:0 0 30px 106px;max-width:860px;color:var(--mut);font-size:18px}
+.uso{border:1px solid var(--line);padding:28px;min-height:280px;display:flex;flex-direction:column;justify-content:space-between;gap:30px;transition:background .3s,color .3s}
+.uso:hover{background:#000;color:#fff}
+.uso:hover .mono,.uso:hover p{color:#bdbdbd}
+.uso h3{font-size:26px;font-weight:800;margin-bottom:10px}
+.uso p{color:var(--mut);font-size:15px}
+.sg{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.sg div{border:1px solid var(--line);padding:26px;display:flex;flex-direction:column;gap:12px}
+.sg svg{width:100%;max-width:230px;height:auto;margin:0 auto;display:block;overflow:visible;color:#fff}
+.sg svg text{font:500 14px "DM Mono",monospace;fill:#fff}
+.sg h3{font-size:24px;font-weight:800;margin-top:6px}
+.sg p{color:var(--mut);font-size:15px}
+.why{display:grid;grid-template-columns:1fr 1fr;gap:5vw;margin-top:72px;border-top:1px solid var(--line);padding-top:36px}
+.why h3{font-size:24px;margin-bottom:10px}
+.why p{color:var(--mut)}
+.verbs{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);margin-top:56px}
+.verbs div{padding:26px 20px 30px 0;border-right:1px solid var(--line)}
+.verbs div+div{padding-left:22px}
+.verbs div:last-child{border-right:0}
+.verbs b{display:block;font:800 clamp(28px,3.6vw,52px)/1 "Bricolage Grotesque",sans-serif;letter-spacing:-.04em;margin-top:12px}
+.tags{display:flex;flex-wrap:wrap;gap:10px;margin-top:36px}
+.tags span{font:500 12px "DM Mono",monospace;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--line);padding:9px 12px;border-radius:9px;transition:background .2s,color .2s}
+.tags span:hover{background:#000;color:#fff}
+.faq{border-top:2px solid #000}
+.faq details{border-bottom:1px solid var(--line)}
+.faq summary{list-style:none;cursor:pointer;padding:24px 0;font:700 clamp(20px,2.2vw,28px)/1.15 "Bricolage Grotesque",sans-serif;letter-spacing:-.03em;display:flex;justify-content:space-between;gap:20px;align-items:center}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"";flex:none;width:10px;height:17px;border:2px solid currentColor;border-radius:3px;transition:transform .6s cubic-bezier(.3,1.5,.5,1)}
+.faq details[open] summary::after{transform:rotate(-30deg);background:currentColor}
+.faq details>p{padding:0 0 26px;max-width:760px;color:var(--mut)}
+.end{text-align:center;padding-top:150px;padding-bottom:70px}
+.end h2{font-size:clamp(40px,7vw,108px);font-weight:800;line-height:.95;max-width:1000px;margin:20px auto 36px}
+.end h2 em{font-style:normal;color:#8f8f8f}
+.end .cta{justify-content:center}
+.foot{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:40px;margin-top:120px;padding-top:36px;border-top:1px solid var(--line)}
+.foot .brand{margin-bottom:16px}
+.foot p{color:var(--mut);font-size:15px;max-width:340px}
+.foot h4{font:500 11px "DM Mono",monospace;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);margin-bottom:14px}
+.foot a{display:block;text-decoration:none;color:#fff;padding:5px 0;font-size:15px}
+.foot a:hover{text-decoration:underline}
+.fb{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-top:60px;padding-top:22px;border-top:1px solid var(--line)}
+@media(max-width:900px){
+.hero,.hd,.mapwrap,.g3,.vs,.why,.sg,.foot{grid-template-columns:1fr}
+.g4,.rules{grid-template-columns:1fr 1fr}
+.hero{padding-top:36px}
+nav{position:absolute;left:0;right:0;top:72px;background:#fff;flex-direction:column;align-items:flex-start;padding:20px max(24px,5vw) 26px;border-bottom:1px solid var(--line);display:none;gap:18px}
+header.mo nav{display:flex}
+#mb{display:block}
+.stage{aspect-ratio:1/.9}
+.stats{grid-template-columns:1fr 1fr}
+.stats div:nth-child(3){padding-left:0;border-left:0}
+.stats div:nth-child(n+3){border-top:1px solid var(--line)}
+.verbs{grid-template-columns:1fr 1fr}
+.verbs div:nth-child(2){border-right:0}
+.verbs div:nth-child(3){padding-left:0}
+.por{min-height:0}
+.row{grid-template-columns:1fr}
+.gbot{display:block}
+.ghint{align-items:flex-start;text-align:left;margin-top:18px}
+#sym{top:40%}
+.acc summary{grid-template-columns:56px 1fr 24px}
+.acc details>div{padding-left:72px}
+}
+@media(max-width:520px){
+.g4,.rules{grid-template-columns:1fr}
+.sec{padding-top:80px;padding-bottom:80px}
+}
+@media(prefers-reduced-motion:reduce){
+*{transition-duration:.01s!important;animation:none!important}
+html{scroll-behavior:auto}
+}
+</style>
+<noscript><style>#gate{display:none}html.locked,html.locked body{overflow:auto}.rv,.res{opacity:1;transform:none}.bar2 i{width:var(--w)}</style></noscript>
+</head>
+<body>
+<a class="sk" href="#conteudo">Pular para o conteúdo</a>
+<div id="pr"></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<path id="pl" d="M188 79A111 111 0 0 0 158 294" fill="none" stroke="currentColor" stroke-width="30"/>
+<path id="pr2" d="M196 81A109 109 0 0 1 233 292" fill="none" stroke="currentColor" stroke-width="46"/>
+<rect id="pk" x="173" y="252" width="46" height="78" rx="9" fill="currentColor"/>
+<g id="sm"><use href="#pl"/><use href="#pr2"/><use href="#pk"/></g>
+</defs></svg>
+<div id="gate" role="dialog" aria-label="A porta da biblioteca está fechada. Gire a chave para abrir.">
+<div class="door dl"></div>
+<div class="door dr"></div>
+<div id="seam"></div>
+<svg id="sym" viewBox="59 49 280 290">
+<g id="gl" fill="none" stroke="#fff"><path d="M188 79A111 111 0 0 0 158 294" stroke-width="30"/></g>
+<g id="gr" fill="none" stroke="#fff"><path d="M196 81A109 109 0 0 1 233 292" stroke-width="46"/></g>
+<g id="key" tabindex="0" role="button" aria-label="Chave. Arraste para a direita ou pressione Enter para girar"><rect x="140" y="236" width="112" height="120" fill="transparent"/><rect class="k" x="173" y="252" width="46" height="78" rx="9" fill="#fff"/></g>
+</svg>
+<div class="gt gtop"><span class="mono">Biblioteca · Porta 01</span><span class="mono">Estado: fechada</span></div>
+<div class="gt gbot"><h2>A internet é uma biblioteca. <em>A porta está fechada.</em></h2><div class="ghint"><span class="mono">Arraste a chave para a direita ↻</span><button type="button" id="auto">Abrir sem arrastar</button></div></div>
+</div>
+<header id="hd"><div class="w hi">
+<a class="brand" href="#topo" aria-label="Verbind, início"><svg class="mk" viewBox="59 49 280 290" aria-hidden="true"><use href="#sm"/></svg>verbind</a>
+<button id="mb" type="button" aria-expanded="false" aria-controls="nv">Menu</button>
+<nav id="nv" aria-label="Principal">
+<a href="#problema">O problema</a>
+<a href="#mapa">O mapa</a>
+<a href="#palavra">Palavra-chave</a>
+<a href="#principios">Princípios</a>
+<a href="#simbolo">O símbolo</a>
+<a href="#nome">O nome</a>
+<a href="#faq">Perguntas</a>
+<a class="btn sm" href="#mapa"><i></i>Entrar no mapa</a>
+</nav>
+</div></header>
+<main id="conteudo">
+<span id="topo"></span>
+<section class="w hero">
+<div>
+<span class="mono rv">O mapa da internet · terceira via de acesso</span>
+<h1 id="h1" tabindex="-1" class="rv">Navegar na internet voltou a ser <span>possível.</span></h1>
+<p class="lead rv">O Verbind abre a porta da biblioteca. Sites, vídeos, imagens, textos e arquivos, todos de uma vez, dispostos num mapa nas quatro direções. No centro, o que o mundo está falando agora. Nas bordas, o que quase ninguém comenta e que também tem lugar.</p>
+<div class="cta rv"><a class="btn" href="#mapa"><i></i>Explorar o mapa</a><a class="lnk" href="#problema">Por que ele existe</a></div>
+</div>
+<div class="stage" id="stage" aria-hidden="true">
+<div class="ly" data-d="8"><span class="orb" style="width:84%;height:84%"></span><span class="orb" style="width:56%;height:56%;border-style:dashed"></span></div>
+<div class="ly" data-d="16"><span class="nd" style="top:20%;left:48%"></span><span class="nd o" style="top:48%;left:14%"></span><span class="nd" style="top:74%;left:66%"></span><span class="nd g" style="top:30%;left:80%"></span><span class="nd o" style="top:82%;left:30%"></span></div>
+<div class="ly" data-d="28"><span class="chip" style="top:16%;left:10%">O que está em alta</span><span class="chip" style="right:6%;top:56%">O que ninguém comenta ↗</span><span class="chip" style="bottom:12%;left:20%">Tudo que se relaciona</span></div>
+<span class="stl" style="top:14px;left:16px">NORTE</span><span class="stl" style="bottom:14px;left:16px">SUL</span><span class="stl" style="top:14px;right:16px">LESTE</span><span class="stl" style="bottom:14px;right:16px">OESTE</span>
+<div class="core"><svg class="mk" viewBox="59 49 280 290"><use href="#sm"/></svg></div>
+</div>
+</section>
+<div class="tk" aria-hidden="true"><div class="tkt" id="tkt"></div></div>
+<section class="w">
+<div class="stats">
+<div><b>4</b><span class="mono">Direções para navegar</span></div>
+<div><b>1</b><span class="mono">Mapa para tudo</span></div>
+<div><b>0</b><span class="mono">Palavras-chave exigidas</span></div>
+<div><b>5</b><span class="mono">Tipos de arquivo no mesmo campo</span></div>
+</div>
+</section>
+<section class="dk sec" id="problema"><div class="w">
+<div class="hd"><div><span class="mono">I · A porta fechada</span><h2 class="rv">Três porteiros decidem o que você pode ver.</h2></div><p class="rv">A internet é uma biblioteca, mas ninguém entra de verdade. Quem guarda a porta mudou de cara ao longo do tempo, e nunca saiu de lá.</p></div>
+<div class="g3">
+<article class="por rv"><span class="mono">01 · Buscadores</span><svg class="dots" data-m="b" aria-hidden="true"></svg><h3>Pessoas na porta</h3><p>Google, Bing, Yandex, Yahoo. Você diz o assunto e eles trazem o que acham relevante. Quase tudo continua lá dentro, e você nunca fica sabendo.</p></article>
+<article class="por rv"><span class="mono">02 · Inteligências artificiais</span><svg class="dots" data-m="i" aria-hidden="true"></svg><h3>Um resumo de tudo</h3><p>Em vez de trazer as fontes relevantes, fazem um resumo. A porta continua fechada e você sai com a resposta pronta na mão.</p></article>
+<article class="por rv"><span class="mono">03 · TV, streaming, vídeos curtos</span><svg class="dots" data-m="f" aria-hidden="true"></svg><h3>Escolher cansa</h3><p>A TV entregava o que achava relevante, no horário que supunha. O streaming devolveu a escolha, e ela pesou. Os vídeos curtos escolhem de novo, de forma indireta.</p></article>
+</div>
+<div class="esc rv"><span class="mono">O peso de escolher · ilustração do argumento, não uma medição</span><h3>Quanto tempo você passa escolhendo, e quanto assistindo?</h3>
+<div class="row"><div><b>TV</b><small>A grade decide por você</small></div><div class="bar2"><i class="a" style="--w:92%">Assistindo</i><i class="b" style="--w:8%"></i></div></div>
+<div class="row"><div><b>Streaming</b><small>Você decide, e demora</small></div><div class="bar2"><i class="b" style="--w:62%">Escolhendo</i><i class="a" style="--w:38%">Assistindo</i></div></div>
+<div class="row"><div><b>Vídeos curtos</b><small>Escolha indireta: você só desliza</small></div><div class="bar2"><i class="b" style="--w:10%"></i><i class="a" style="--w:90%">Assistindo o que escolheram</i></div></div>
+</div>
+</div></section>
+<section class="sec" id="mapa"><div class="w">
+<div class="hd"><div><span class="mono">II · O mapa</span><h2 class="rv">Posição é significado. Quanto mais se fala, mais perto do centro.</h2></div><p class="rv">Cada tema ocupa um lugar nas quatro direções, ao lado dos temas com que se relaciona. O ser humano lida muito bem com lugares e posições, e é isso que o mapa usa. Aponte, arraste, aproxime.</p></div>
+<div class="rules">
+<div class="rule rv"><span class="mono">01 · Centro</span><h3>O que está em alta</h3><p>Os temas mais relevantes e falados no momento ocupam o centro.</p></div>
+<div class="rule rv"><span class="mono">02 · Bordas</span><h3>O que ninguém comenta</h3><p>O que não é falado também tem posição na interface.</p></div>
+<div class="rule rv"><span class="mono">03 · Distância</span><h3>O que se relaciona</h3><p>Quanto mais perto, mais ligados os temas. Você acha tudo o que tem relação com o que buscava.</p></div>
+<div class="rule rv"><span class="mono">04 · Formato</span><h3>Tudo, de uma vez</h3><p>Sites, vídeos, imagens, textos e outros arquivos, no mesmo campo.</p></div>
+</div>
+<div class="tools">
+<div class="fm" role="group" aria-label="Filtrar por formato"><span class="mono">Formato</span>
+<button type="button" data-f="s" aria-pressed="false">Sites</button><button type="button" data-f="v" aria-pressed="false">Vídeos</button><button type="button" data-f="i" aria-pressed="false">Imagens</button><button type="button" data-f="t" aria-pressed="false">Textos</button><button type="button" data-f="a" aria-pressed="false">Arquivos</button>
+</div>
+<div class="nav4" role="group" aria-label="Ir para uma direção"><button type="button" data-g="500,150,520">↑ Norte</button><button type="button" data-g="800,310,520">→ Leste</button><button type="button" data-g="500,470,520">↓ Sul</button><button type="button" data-g="200,310,520">← Oeste</button><button type="button" data-g="500,310,380">◎ Centro</button></div>
+</div>
+<div class="mapwrap">
+<div class="map" id="map"><svg id="msvg" viewBox="0 0 1000 620" role="group" aria-label="Mapa ilustrativo de temas"></svg><div class="zmb"><button type="button" id="zi" aria-label="Aproximar">+</button><button type="button" id="zo" aria-label="Afastar">−</button><button type="button" id="zr" aria-label="Ver tudo">⌂</button></div></div>
+<aside class="panel" aria-live="polite"><span class="mono">Você buscava</span><h3 id="pn">Café</h3><div><span class="mono" id="pf">70% falado agora</span><div class="bar" style="margin-top:8px"><i id="pb"></i></div></div><p id="pd"></p><span class="mono" id="pm"></span><span class="mono">Também está aqui</span><div class="chips" id="pc"></div></aside>
+</div>
+<p class="mono note">Exemplo ilustrativo com 40 temas. No Verbind, são todos. Arraste para andar, use + e − para aproximar, ou Ctrl + rolagem. Sem caixa de busca: você aponta, e a vizinhança aparece.</p>
+</div></section>
+<section class="sec kwb" id="palavra"><div class="w">
+<span class="mono">III · O fim da barreira</span>
+<h2 class="kw" id="kw" aria-label="Palavra-chave, riscada"><span class="a">palavra</span><span class="sm"></span><span class="b">chave</span></h2>
+<div class="vs">
+<div class="card" id="cantes"><span class="mono">Antes · a porta pedia a palavra certa</span><div class="sb"><span class="t" id="tq"></span></div><div class="res" id="tr">Nenhum resultado. Quem não sabe o nome do que procura fica do lado de fora.</div><h3>Saber o nome do que procura</h3><p>Sem a palavra certa, a porta não abria. O que existia continuava lá dentro, invisível.</p></div>
+<div class="card"><span class="mono">Agora · basta saber para onde olhar</span>
+<svg class="mini" viewBox="0 0 360 230" role="img" aria-label="Mapa pequeno com a região de Samba e Carnaval destacada ao sul"><ellipse cx="180" cy="115" rx="70" ry="44" fill="none" stroke="#999" stroke-dasharray="3 6"/><ellipse cx="180" cy="115" rx="150" ry="98" fill="none" stroke="#999" stroke-dasharray="3 6"/><circle cx="180" cy="100" r="6"/><circle cx="130" cy="60" r="5"/><circle cx="250" cy="70" r="7"/><circle cx="70" cy="120" r="5"/><circle cx="296" cy="140" r="5"/><circle cx="150" cy="170" r="9"/><circle cx="196" cy="182" r="7"/><circle cx="214" cy="160" r="5"/><circle cx="165" cy="198" r="4"/><circle cx="188" cy="176" r="40" fill="none" stroke="#000" stroke-width="2"/><text x="146" y="150" text-anchor="end">FUTEBOL</text><text x="128" y="174" text-anchor="end">CARNAVAL</text><text x="226" y="188">SAMBA</text><text x="180" y="22" text-anchor="middle">NORTE</text><text x="180" y="224" text-anchor="middle">SUL</text></svg>
+<h3>Saber para onde olhar</h3><p>Todas as informações acessíveis a todos, de maneira indiscriminada. Você não acha só o que procurava: acha tudo o que se relaciona. Como numa biblioteca ou num supermercado, volta com mais.</p></div>
+</div>
+</div></section>
+<section class="sec" id="principios"><div class="w">
+<div class="hd"><div><span class="mono">IV · Princípios</span><h2 class="rv">Sete convicções por trás do mapa.</h2></div><p class="rv">Tudo no Verbind, da interface ao nome, nasce destas ideias. Abra uma por vez.</p></div>
+<div class="acc">
+<details open><summary><span class="mono">I</span><b>A porta fechada</b></summary><div>A internet é como uma biblioteca inacessível. Os buscadores são pessoas na porta, que trazem o que acham relevante. As IAs, em vez de trazer as fontes, fazem um resumo de tudo. A porta continua fechada e o interior, fora de alcance.</div></details>
+<details><summary><span class="mono">II</span><b>Voltar com mais</b></summary><div>Bibliotecas se parecem com supermercados: você sai de casa querendo uma coisa e volta com mais do que estava procurando. O Verbind devolve esse efeito à internet.</div></details>
+<details><summary><span class="mono">III</span><b>O peso de escolher</b></summary><div>A TV entregava o que achava relevante, nos horários que supunha. O streaming deixou cada um decidir, e o peso da escolha fez muita gente passar mais tempo escolhendo do que assistindo. Os vídeos curtos exibem algo logo de cara, como a TV, e devolvem o poder de escolha de maneira indireta.</div></details>
+<details><summary><span class="mono">IV</span><b>O corpo sabe de mapas</b></summary><div>O ser humano lida muito bem com informações geográficas e tem grande capacidade de decorar lugares e posições no espaço. O Verbind organiza a informação do jeito que a mente já sabe guardar.</div></details>
+<details><summary><span class="mono">V</span><b>A terceira via</b></summary><div>Uma terceira via de acesso às informações, onde tudo fica acessível, de maneira indiscriminada, a todos.</div></details>
+<details><summary><span class="mono">VI</span><b>O fim da palavra-chave</b></summary><div>A barreira chamada “palavra-chave” deixa de existir. Não é preciso saber o nome do que se procura para chegar lá.</div></details>
+<details><summary><span class="mono">VII</span><b>Navegar de verdade</b></summary><div>Fazer com que a expressão “navegar na internet” se torne realidade.</div></details>
+</div>
+</div></section>
+<section class="sec" style="padding-top:0"><div class="w">
+<div class="hd"><div><span class="mono">V · Cenas de uso</span><h2 class="rv">Quem entra, e o que encontra.</h2></div><p class="rv">Ninguém precisa saber o que procura para começar. Basta querer olhar.</p></div>
+<div class="g4">
+<article class="uso rv"><span class="mono">01</span><div><h3>Quem estuda</h3><p>Começa por um assunto e vê, ao redor, os vizinhos que nunca teria pensado em pesquisar.</p></div></article>
+<article class="uso rv"><span class="mono">02</span><div><h3>Quem cria</h3><p>Encontra referências nas bordas do mapa, onde quase ninguém passou.</p></div></article>
+<article class="uso rv"><span class="mono">03</span><div><h3>Quem tem curiosidade</h3><p>Passeia pelas quatro direções sem saber o nome do que procura.</p></div></article>
+<article class="uso rv"><span class="mono">04</span><div><h3>Escolas e bibliotecas</h3><p>Mostra a internet como um acervo que se atravessa, e não como uma caixa de perguntas.</p></div></article>
+</div>
+</div></section>
+<section class="dk sec" id="simbolo"><div class="w">
+<div class="hd"><div><span class="mono">VI · O símbolo</span><h2 class="rv">Uma chave que abre a porta e volta ao lugar.</h2></div><p class="rv">O anel dividido é a porta da biblioteca. A chave, na base, é o Verbind. O gesto tem três tempos, e a marca nunca é animada: ela é parada, e o movimento fica em quem olha.</p></div>
+<div class="sg">
+<div class="rv"><span class="mono">01 · Encaixe · 0°</span><svg viewBox="40 40 320 330"><use href="#pl"/><use href="#pr2"/><use href="#pk"/><path d="M196 190V291" stroke="#fff" stroke-width="1.5" stroke-dasharray="4 5" opacity=".6"/><text x="212" y="345">0°</text></svg><h3>A porta está fechada</h3><p>A chave está no lugar, e o anel, inteiro. É a internet de hoje, com buscadores e IAs guardando a entrada.</p></div>
+<div class="rv"><span class="mono">02 · Tranco · −30°</span><svg viewBox="40 40 320 330"><g transform="translate(-8 0)"><use href="#pl"/></g><g transform="translate(8 0)"><use href="#pr2"/></g><use href="#pk" transform="rotate(-30 196 190)"/><path d="M196 190L246.5 277.5" stroke="#fff" stroke-width="1.5" stroke-dasharray="4 5" opacity=".6"/><path d="M196 291A101 101 0 0 0 246.5 277.5" fill="none" stroke="#fff" stroke-width="1.5"/><text x="262" y="318">−30°</text></svg><h3>A trava cede</h3><p>A chave gira e as duas metades do anel se afastam. É o fim da barreira “palavra-chave”.</p></div>
+<div class="rv"><span class="mono">03 · Retorno · 0°</span><svg viewBox="40 40 320 330"><use href="#pl"/><use href="#pr2"/><use href="#pk"/><path d="M196 190V291" stroke="#fff" stroke-width="1.5" stroke-dasharray="4 5" opacity=".6"/><text x="212" y="345">0°</text></svg><h3>A porta fica aberta</h3><p>A chave volta à posição original. A fresta que sobra no anel é a porta entreaberta, convidando a entrar.</p></div>
+</div>
+<div class="why">
+<div class="rv"><h3>Por que dois arcos diferentes?</h3><p>O arco grosso e o arco fino lembram que a internet não é igual em todo lugar. O que muita gente fala pesa mais e fica perto do centro, mas o que quase ninguém fala também tem lugar no mapa.</p></div>
+<div class="rv"><h3>Por que só preto e branco?</h3><p>A biblioteca fechada é preta. A luz que entra pela porta é branca. Nada mais fica entre as duas coisas, nem cor, nem filtro, nem intermediário.</p></div>
+</div>
+</div></section>
+<section class="sec" id="nome"><div class="w">
+<div class="hd" style="margin-bottom:0"><div><span class="mono">VII · O nome</span><h2 class="rv">Verbind. Do africâner, o que a porta aberta faz.</h2></div><p class="rv">A internet tem a expressão “navegar” desde sempre, mas nunca teve mar, nem mapa. O Verbind faz a expressão se tornar realidade.</p></div>
+<div class="verbs rv"><div><span class="mono">Norte</span><b>conectar</b></div><div><span class="mono">Leste</span><b>unir</b></div><div><span class="mono">Sul</span><b>juntar</b></div><div><span class="mono">Oeste</span><b>vincular</b></div></div>
+<div class="tags rv"><span>Livre</span><span>Natural</span><span>Humano</span><span>Intuitivo</span><span>Abrangente</span><span>Disruptivo</span><span>Inovador</span><span>Acessível</span><span>Direto</span><span>Aberto</span><span>Geográfico</span></div>
+</div></section>
+<section class="sec" id="faq" style="padding-top:0"><div class="w">
+<div class="hd"><div><span class="mono">VIII · Perguntas</span><h2 class="rv">O que costumam perguntar.</h2></div><p class="rv">Respostas curtas sobre a ideia. O Verbind é um conceito em construção, e estas respostas descrevem o propósito dele.</p></div>
+<div class="faq">
+<details><summary>O Verbind é um buscador?</summary><p>Não. Um buscador traz o que acha relevante para uma palavra. O Verbind põe tudo num mapa e deixa você andar por ele. A ideia é que você ache o que procura e também tudo o que se relaciona.</p></details>
+<details><summary>Ele substitui as IAs?</summary><p>Não é essa a ideia. As IAs resumem; o Verbind mostra as fontes e a vizinhança entre elas, sem resumir. São caminhos diferentes para a mesma biblioteca.</p></details>
+<details><summary>Preciso saber o que procuro?</summary><p>Não. O fim da barreira chamada “palavra-chave” é um dos princípios da marca. Você começa olhando para uma direção e vai descobrindo.</p></details>
+<details><summary>O que fica no centro do mapa?</summary><p>Os temas mais relevantes e mais falados no momento. Quanto menos um assunto é comentado, mais perto da borda ele fica, mas continua tendo uma posição.</p></details>
+<details><summary>Que tipos de conteúdo aparecem?</summary><p>Sites, vídeos, imagens, textos e outros tipos de arquivo, todos no mesmo campo, organizados geograficamente nas quatro direções.</p></details>
+<details><summary>Por que o nome é africâner?</summary><p>Porque “verbind” significa conectar, unir, juntar ou vincular, que é exatamente o que o mapa faz com a informação.</p></details>
+</div>
+</div></section>
+<section class="dk end" id="fim"><div class="w">
+<span class="mono">VIII · Retorno</span>
+<h2 class="rv">A chave volta ao lugar. <em>A porta fica aberta.</em></h2>
+<div class="cta rv"><button class="btn" id="again" type="button"><i></i>Girar a chave de novo</button><a class="lnk" href="#mapa">Voltar ao mapa</a></div>
+<div class="foot">
+<div><a class="brand" href="#topo" style="color:#fff"><svg class="mk" viewBox="59 49 280 290" aria-hidden="true"><use href="#sm"/></svg>verbind</a><p>O mapa da internet. Todas as informações, organizadas geograficamente, sem palavra-chave e sem porteiros.</p></div>
+<div><h4>Navegar</h4><a href="#problema">O problema</a><a href="#mapa">O mapa</a><a href="#palavra">Palavra-chave</a><a href="#principios">Princípios</a></div>
+<div><h4>Marca</h4><a href="#simbolo">O símbolo</a><a href="#nome">O nome</a><a href="#faq">Perguntas</a><a href="#topo">Voltar ao topo</a></div>
+</div>
+<div class="fb"><span class="mono">Verbind · africâner: conectar, unir, juntar, vincular</span><span class="mono">O mapa da internet</span></div>
+</div></section>
+</main>
+<script>
+(function(){
+const $=s=>document.querySelector(s),$$=s=>Array.from(document.querySelectorAll(s));
+const root=document.documentElement;
+const rm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const gate=$('#gate'),key=$('#key'),gl=$('#gl'),gr=$('#gr'),seam=$('#seam'),sym=$('#sym');
+let ang=0,locked=true,busy=false,drag=false,gen=0;
+root.classList.add('locked');
+const setA=a=>{ang=a;key.setAttribute('transform','rotate('+a+' 196 190)');seam.style.opacity=(Math.min(1,Math.max(0,-a/30))*.85).toFixed(2)};
+const setS=s=>{gl.setAttribute('transform','translate('+(-s)+' 0)');gr.setAttribute('transform','translate('+s+' 0)')};
+const tw=(f,t,ms,ez,fn,force)=>{const g=gen;return new Promise(ok=>{if(rm||ms<=0){fn(t);return ok()}const s=performance.now();const k=n=>{if(!force&&g!==gen)return ok();const x=Math.min(1,Math.max(0,(n-s)/ms));fn(f+(t-f)*ez(x));x<1?requestAnimationFrame(k):ok()};requestAnimationFrame(k)})};
+const eo=x=>1-Math.pow(1-x,3);
+const eb=x=>1+2.9*Math.pow(x-1,3)+1.9*Math.pow(x-1,2);
+const eio=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2;
+const unlock=()=>{
+if(!locked||busy)return;
+busy=true;
+tw(ang,-35,110,eo,setA,true).then(()=>{
+try{navigator.vibrate&&navigator.vibrate(18)}catch(e){}
+tw(0,9,90,eo,setS,true);
+return tw(-35,0,750,eb,setA,true)
+}).then(()=>{
+tw(9,0,500,eo,setS,true);
+locked=false;
+gate.classList.add('o');
+root.classList.remove('locked');
+root.classList.add('open');
+setTimeout(()=>{gate.hidden=true;busy=false;try{$('#h1').focus({preventScroll:true})}catch(e){}},rm?0:1350)
+})
+};
+const center=()=>{const p=sym.createSVGPoint();p.x=196;p.y=190;return p.matrixTransform(sym.getScreenCTM())};
+key.addEventListener('pointerdown',e=>{if(!locked||busy)return;gen++;drag=true;try{key.setPointerCapture(e.pointerId)}catch(x){}e.preventDefault()});
+window.addEventListener('pointermove',e=>{
+if(!drag)return;
+const c=center(),dx=e.clientX-c.x,dy=e.clientY-c.y;
+let a=dy>0?-Math.atan2(dx,dy)*180/Math.PI:(dx>0?-36:0);
+a=Math.max(-36,Math.min(0,a));
+setA(a);
+if(a<=-29){drag=false;unlock()}
+});
+window.addEventListener('pointerup',()=>{if(drag){drag=false;gen++;tw(ang,0,550,eb,setA)}});
+key.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '||e.key==='ArrowRight'){e.preventDefault();unlock()}});
+$('#auto').addEventListener('click',()=>{gen++;unlock()});
+const hint=()=>{
+if(!locked||drag||busy||rm)return;
+tw(0,-8,350,eo,setA).then(()=>tw(-8,0,550,eb,setA)).then(()=>{setTimeout(hint,3600)})
+};
+setTimeout(hint,1600);
+$('#again').addEventListener('click',()=>{
+window.scrollTo({top:0,behavior:'auto'});
+gate.hidden=false;
+void gate.offsetWidth;
+gen++;busy=false;locked=true;
+setA(0);setS(0);
+root.classList.add('locked');
+root.classList.remove('open');
+gate.classList.remove('o');
+setTimeout(hint,2400)
+});
+const st=$('#stage');
+if(st&&!rm){
+st.addEventListener('pointermove',e=>{
+const r=st.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+st.querySelectorAll('.ly').forEach(l=>{const d=+l.dataset.d;l.style.transform='translate('+(-x*d)+'px,'+(-y*d)+'px)'})
+});
+st.addEventListener('pointerleave',()=>{st.querySelectorAll('.ly').forEach(l=>{l.style.transform=''})})
+}
+const mb=$('#mb'),hd=$('#hd');
+mb.addEventListener('click',()=>{const o=hd.classList.toggle('mo');mb.setAttribute('aria-expanded',o)});
+$$('#nv a').forEach(a=>a.addEventListener('click',()=>{hd.classList.remove('mo');mb.setAttribute('aria-expanded','false')}));
+const pr=$('#pr');
+const onScroll=()=>{const h=root.scrollHeight-innerHeight;pr.style.transform='scaleX('+(h>0?Math.min(1,scrollY/h):0)+')'};
+addEventListener('scroll',onScroll,{passive:true});
+$$('svg.dots').forEach(s=>{
+const m=s.dataset.m,lit={b:['0,2','1,6','3,4'],f:['1,4'],i:[]}[m];
+let h='';
+for(let r=0;r<4;r++)for(let c=0;c<9;c++){const on=lit.indexOf(r+','+c)>-1;h+='<circle cx="'+(14+c*16)+'" cy="'+(14+r*16)+'" r="'+(on?6:4)+'" fill="'+(on?'#fff':'currentColor')+'" opacity="'+(on?1:.28)+'"/>'}
+if(m==='i')h+='<rect x="6" y="6" width="140" height="68" rx="9" fill="#fff"/><circle cx="76" cy="40" r="5" fill="#000"/>';
+if(m==='f')h+='<path d="M76 24V54M70 48l6 7 6-7" fill="none" stroke="#fff" stroke-width="2"/>';
+s.setAttribute('viewBox','0 0 152 80');
+s.innerHTML=h
+});
+const D=[
+{a:0,n:'Natureza e ciência',t:[['Clima extremo',.9,'svt'],['Vacinas',.72,'tvs'],['Neurociência',.62,'tsv'],['Abelhas',.5,'vis'],['Buracos negros',.4,'viat'],['Migração das aves',.32,'vi'],['Oceanos profundos',.28,'vi'],['Fungos',.22,'it'],['Cartografia antiga',.12,'ia'],['Herbários',.1,'ia']]},
+{a:90,n:'Tecnologia e dinheiro',t:[['Inteligência artificial',.96,'svt'],['Pix',.72,'st'],['Chips',.66,'tv'],['Criptomoedas',.55,'svt'],['Computação quântica',.4,'tv'],['Software livre',.3,'sta'],['Fabricação digital',.24,'vi'],['Ciência aberta',.2,'tas'],['Bibliotecas digitais',.15,'sta'],['Economia solidária',.12,'st']]},
+{a:180,n:'Cultura e memória',t:[['Futebol',.92,'vis'],['Carnaval',.62,'vi'],['Samba',.52,'vat'],['Cinema nacional',.42,'vit'],['Capoeira',.36,'vi'],['Fotografia de rua',.26,'i'],['Receitas de família',.22,'tia'],['Mitologia africana',.18,'ti'],['Cordel',.15,'tia'],['Arquivos de rádio',.1,'a']]},
+{a:270,n:'Corpo e mente',t:[['Sono',.82,'tvs'],['Café',.7,'svit'],['Meditação',.5,'vts'],['Corrida',.46,'vs'],['Alongamento',.4,'v'],['Respiração',.34,'vt'],['Dores crônicas',.3,'ts'],['Luto',.24,'t'],['Jogos de tabuleiro',.2,'vit'],['Cheiros e memória',.1,'ti']]}
+];
+const L=[['Café','Sono'],['Café','Receitas de família'],['Café','Economia solidária'],['Café','Clima extremo'],['Café','Abelhas'],['Sono','Neurociência'],['Sono','Respiração'],['Meditação','Neurociência'],['Meditação','Luto'],['Meditação','Respiração'],['Inteligência artificial','Neurociência'],['Inteligência artificial','Chips'],['Software livre','Bibliotecas digitais'],['Software livre','Ciência aberta'],['Ciência aberta','Bibliotecas digitais'],['Fabricação digital','Software livre'],['Bibliotecas digitais','Cartografia antiga'],['Arquivos de rádio','Cordel'],['Cordel','Mitologia africana'],['Samba','Carnaval'],['Carnaval','Futebol'],['Cinema nacional','Samba'],['Capoeira','Samba'],['Capoeira','Mitologia africana'],['Fotografia de rua','Cinema nacional'],['Fotografia de rua','Carnaval'],['Cheiros e memória','Neurociência'],['Cheiros e memória','Receitas de família'],['Fungos','Receitas de família'],['Fungos','Abelhas'],['Herbários','Fungos'],['Herbários','Cartografia antiga'],['Migração das aves','Clima extremo'],['Migração das aves','Cartografia antiga'],['Oceanos profundos','Clima extremo'],['Buracos negros','Computação quântica'],['Jogos de tabuleiro','Mitologia africana'],['Corrida','Dores crônicas'],['Alongamento','Dores crônicas'],['Alongamento','Corrida'],['Vacinas','Clima extremo'],['Pix','Economia solidária'],['Criptomoedas','Pix'],['Futebol','Pix']];
+const FM={s:'sites',v:'vídeos',i:'imagens',t:'textos',a:'arquivos'};
+const N=[],ix={},CX=500,CY=310;
+D.forEach((d,k)=>d.t.forEach((t,i)=>{
+const j=((i*37+k*13)%9-4)/4*40,an=(d.a+j)*Math.PI/180,r=58+(1-t[1])*205;
+const o={n:t[0],f:t[1],m:t[2],c:d.n,x:CX+Math.sin(an)*r*1.7,y:CY-Math.cos(an)*r*1.12};
+ix[o.n]=N.length;N.push(o)
+}));
+const tk=$('#tkt');
+if(tk){const names=N.slice().sort((a,b)=>b.f-a.f).map(o=>'<span>'+o.n+'</span>').join('');tk.innerHTML=names+names}
+const svg=$('#msvg'),mapEl=$('#map');
+let h='<ellipse class="rg" cx="500" cy="310" rx="130" ry="85"/><ellipse class="rg" cx="500" cy="310" rx="300" ry="190"/><ellipse class="rg" cx="500" cy="310" rx="470" ry="298"/>';
+h+='<text class="cl" x="500" y="30" text-anchor="middle">Norte · Natureza e ciência</text>';
+h+='<text class="cl" x="984" y="310" text-anchor="middle" transform="rotate(90 984 310)">Leste · Tecnologia e dinheiro</text>';
+h+='<text class="cl" x="500" y="610" text-anchor="middle">Sul · Cultura e memória</text>';
+h+='<text class="cl" x="16" y="310" text-anchor="middle" transform="rotate(-90 16 310)">Oeste · Corpo e mente</text>';
+h+='<text class="cl" x="500" y="304" text-anchor="middle" opacity=".6">Em alta agora</text>';
+h+='<text class="cl" x="650" y="470" opacity=".6">Quase ninguém fala →</text>';
+L.forEach(l=>{const a=N[ix[l[0]]],b=N[ix[l[1]]];h+='<line class="e" data-a="'+ix[l[0]]+'" data-b="'+ix[l[1]]+'" x1="'+a.x.toFixed(0)+'" y1="'+a.y.toFixed(0)+'" x2="'+b.x.toFixed(0)+'" y2="'+b.y.toFixed(0)+'"/>'});
+N.forEach((o,i)=>{const left=o.x<CX,r=4+o.f*8;h+='<g class="n" tabindex="0" role="button" data-i="'+i+'" aria-label="'+o.n+'"><circle cx="'+o.x.toFixed(0)+'" cy="'+o.y.toFixed(0)+'" r="'+r.toFixed(1)+'"/><text x="'+(o.x+(left?-1:1)*(r+8)).toFixed(0)+'" y="'+(o.y+4).toFixed(0)+'" text-anchor="'+(left?'end':'start')+'">'+o.n+'</text></g>'});
+svg.innerHTML=h;
+const nb=i=>{
+const s=[];
+L.forEach(l=>{const a=ix[l[0]],b=ix[l[1]];if(a===i)s.push(b);if(b===i)s.push(a)});
+if(s.length<3){N.map((o,j)=>[j,Math.hypot(o.x-N[i].x,o.y-N[i].y)]).sort((a,b)=>a[1]-b[1]).forEach(p=>{if(p[0]!==i&&s.indexOf(p[0])<0&&s.length<3)s.push(p[0])})}
+return s
+};
+let cur=0;
+const sel=i=>{
+cur=i;
+const o=N[i],ns=nb(i);
+mapEl.classList.add('has');
+svg.querySelectorAll('.n').forEach((g,j)=>{g.classList.toggle('sel',j===i);g.classList.toggle('nb',ns.indexOf(j)>-1)});
+svg.querySelectorAll('.e').forEach(e=>{const a=+e.dataset.a,b=+e.dataset.b;e.classList.toggle('on',(a===i&&ns.indexOf(b)>-1)||(b===i&&ns.indexOf(a)>-1))});
+$('#pn').textContent=o.n;
+$('#pf').textContent=Math.round(o.f*100)+'% falado agora';
+$('#pb').style.width=Math.round(o.f*100)+'%';
+$('#pd').textContent=o.f>.6?'Perto do centro: é um dos temas mais comentados do momento.':o.f>.3?'Zona intermediária: tem público, mas não domina a conversa.':'Nas bordas: quase ninguém fala, e mesmo assim tem seu lugar no mapa.';
+$('#pm').textContent='Aqui: '+o.m.split('').map(c=>FM[c]).join(' · ');
+$('#pc').innerHTML=ns.map(j=>'<button type="button" data-j="'+j+'">'+N[j].n+'</button>').join('')
+};
+const vb={x:0,y:0,w:1000,h:620};
+const setVB=()=>{
+vb.w=Math.max(260,Math.min(1000,vb.w));
+vb.h=vb.w*.62;
+vb.x=Math.max(0,Math.min(1000-vb.w,vb.x));
+vb.y=Math.max(0,Math.min(620-vb.h,vb.y));
+svg.setAttribute('viewBox',vb.x.toFixed(1)+' '+vb.y.toFixed(1)+' '+vb.w.toFixed(1)+' '+vb.h.toFixed(1));
+mapEl.classList.toggle('zm',vb.w<999)
+};
+const fly=(cx,cy,w)=>{
+const f={x:vb.x,y:vb.y,w:vb.w},t={w:w,x:cx-w/2,y:cy-w*.31};
+const g=gen+'f';
+if(rm){vb.x=t.x;vb.y=t.y;vb.w=t.w;setVB();return}
+const s=performance.now();
+const k=n=>{
+const x=eio(Math.min(1,(n-s)/750));
+vb.x=f.x+(t.x-f.x)*x;vb.y=f.y+(t.y-f.y)*x;vb.w=f.w+(t.w-f.w)*x;setVB();
+if(x<1)requestAnimationFrame(k)
+};
+requestAnimationFrame(k)
+};
+const zoomAt=(fac,px,py)=>{
+const nw=Math.max(260,Math.min(1000,vb.w*fac)),r=nw/vb.w;
+vb.x=px-(px-vb.x)*r;vb.y=py-(py-vb.y)*r;vb.w=nw;setVB()
+};
+const toUser=e=>{const r=svg.getBoundingClientRect();return[vb.x+(e.clientX-r.left)/r.width*vb.w,vb.y+(e.clientY-r.top)/r.height*vb.h]};
+$('#zi').addEventListener('click',()=>zoomAt(.7,vb.x+vb.w/2,vb.y+vb.h/2));
+$('#zo').addEventListener('click',()=>zoomAt(1.4,vb.x+vb.w/2,vb.y+vb.h/2));
+$('#zr').addEventListener('click',()=>fly(500,310,1000));
+$$('.nav4 button').forEach(b=>b.addEventListener('click',()=>{const a=b.dataset.g.split(',').map(Number);fly(a[0],a[1],a[2])}));
+mapEl.addEventListener('wheel',e=>{if(e.ctrlKey||e.metaKey){e.preventDefault();const p=toUser(e);zoomAt(e.deltaY>0?1.15:.87,p[0],p[1])}},{passive:false});
+let pan=null,moved=false;
+svg.addEventListener('pointerdown',e=>{
+if(e.target.closest('.n')||vb.w>=999)return;
+pan={x:e.clientX,y:e.clientY,vx:vb.x,vy:vb.y};moved=false;
+mapEl.classList.add('pn');
+try{svg.setPointerCapture(e.pointerId)}catch(x){}
+});
+svg.addEventListener('pointermove',e=>{
+if(!pan)return;
+const r=svg.getBoundingClientRect(),k=vb.w/r.width;
+if(Math.abs(e.clientX-pan.x)+Math.abs(e.clientY-pan.y)>4)moved=true;
+vb.x=pan.vx-(e.clientX-pan.x)*k;vb.y=pan.vy-(e.clientY-pan.y)*k;setVB()
+});
+const endPan=()=>{pan=null;mapEl.classList.remove('pn')};
+svg.addEventListener('pointerup',endPan);
+svg.addEventListener('pointercancel',endPan);
+svg.addEventListener('click',e=>{const g=e.target.closest('.n');if(g)sel(+g.dataset.i)});
+svg.addEventListener('mouseover',e=>{if(pan)return;const g=e.target.closest('.n');if(g&&+g.dataset.i!==cur)sel(+g.dataset.i)});
+svg.addEventListener('keydown',e=>{const g=e.target.closest('.n');if(g&&(e.key==='Enter'||e.key===' ')){e.preventDefault();sel(+g.dataset.i)}});
+$('#pc').addEventListener('click',e=>{const b=e.target.closest('button');if(b){const j=+b.dataset.j;sel(j);const o=N[j];if(vb.w<999)fly(o.x,o.y,vb.w)}});
+const F=new Set();
+$$('.fm button').forEach(b=>b.addEventListener('click',()=>{
+const f=b.dataset.f;
+if(F.has(f))F.delete(f);else F.add(f);
+b.setAttribute('aria-pressed',F.has(f));
+svg.querySelectorAll('.n').forEach((g,j)=>{g.classList.toggle('off',F.size>0&&!Array.from(F).some(x=>N[j].m.indexOf(x)>-1))})
+}));
+sel(ix['Café']);
+const tq=$('#tq'),tr=$('#tr'),phrase='aquele ritmo com tambor, como é mesmo que chama?';
+let typed=false;
+const typeIt=()=>{
+if(typed)return;typed=true;
+if(rm){tq.textContent=phrase;tr.classList.add('in');return}
+let i=0;
+const t=setInterval(()=>{
+tq.textContent=phrase.slice(0,++i);
+if(i>=phrase.length){clearInterval(t);setTimeout(()=>tr.classList.add('in'),500)}
+},48)
+};
+if('IntersectionObserver' in window){
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');if(e.target.id==='cantes')typeIt();io.unobserve(e.target)}})},{threshold:.25});
+$$('.sec .rv,.end .rv,#kw,#cantes,.esc').forEach(x=>io.observe(x))
+}else{
+$$('.sec .rv,.end .rv,#kw,#cantes,.esc').forEach(x=>x.classList.add('in'));
+typeIt()
+}
+})();
+</script>
+</body>
+</html>
